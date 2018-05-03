@@ -1,0 +1,18 @@
+{% extends 'base_generic.html' %}
+
+{% block title %}<title>{{ title }}</title>{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1 class="font-weight-bold">Author List</h1>
+    <div class="list-group list-group-flush">
+        {% for author in author_list %}
+        <li class="list-group-item d-flex justify-content-between">
+            <a href="{{ author.get_absolute_url }}"><span>{{ author }}</span></a>
+        </li>
+        {% empty %}
+        <h5 class="text-muted">There are no authors in the library.</h5>
+        {% endfor %}
+    </div>     
+</div>
+{% endblock %}

@@ -1,0 +1,117 @@
+{% extends 'base_generic.html' %}
+
+{% block title %}<title>{{ book.title }}</title>{% endblock %}
+
+{% block content %}
+<div class="container">
+    <section class="mb-5" id="book-detail">
+        <img class="img-fluid mb-5" src="{{ book.img_url_l }}" style="max-height: 30%;">
+        <h1 class="font-weight-bold mb-4" id="book-title">{{ book.title }}</h1>
+        {% if book.series %}<p class="text-muted">{{ book.series }}</p>{% endif %}
+        <p>Author: {% for author in book.author.all %} <a href="{% url 'author-detail' author.pk %}">{{ author }}</a>{% if not forloop.last %},{% endif %}{% endfor %}</p>
+        <p>Genre: {% for genre in book.genre.all %}{{ genre }}{% if not forloop.last %}, {% endif %}{% endfor %}</p>
+        <p>Description:</p>
+        {% if book.desc %}
+        <p style="white-space: pre-wrap;">{{ book.desc }}</p>
+        {% else %}
+        <p class="font-italic text-muted">No description available.</p>
+        {% endif %}
+    </section>
+    <section class="mb-5" id="copies">
+        <div class="mx-4">
+            <h4>Copies</h4>
+            <hr>
+            {% for copy in book.bookinstance_set.all %}
+            <h5>
+                <span id="copystatus" class="{% if copy.status == 'a' %}badge badge-pill badge-success{% elif copy.status == 'm' %}badge badge-pill badge-danger{% else %}badge badge-pill badge-warning{% endif %}">
+                    {{ copy.get_status_display }}
+                </span>
+            </h5>
+            {% if copy.status != 'a' %}<p>Due to be returned: {{ copy.due_back }}</p>{% endif %}
+            <p>Imprint: {{ copy.imprint }}</p>
+            <p class="text-muted">ID: <span id="bookInstId">{{ copy.id }}</span></p>
+            <button type="button" class="btn btn-outline-primary btn-md mr-3 btn-add-to-cart {% if copy.status != 'a' %}disabled{% endif %}"><span><i class="fa fa-cart-plus mr-2"></i></span>Add to cart</button>
+            {% if not forloop.last %}<hr>{% endif %}
+            <!-- Modal: AddToCart -->
+            <div class="modal fade top" id="modalAddToCart" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-frame modal-top modal-notify modal-success" role="document">
+                    <div class="modal-content">
+                        <div class="modal-body">
+                            <div class="row d-flex justify-content-center align-items-center">
+                                <span class="modal-msg"></span>
+                                <button type="button" class="close text-muted mx-2" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- end Modal: AddToCart -->
+            {% empty %}
+            <p class="font-italic text-muted">There are no copies in the library.</p>
+            {% endfor %}
+        </div>
+    </section>
+    <hr>
+    <!-- Read also -->
+    <section class="mb-3" id="readalso">
+        <div class="mx-1">
+            <h3>Read also</h3>
+            <p class="text-muted font-italic">This section is under development.</p>
+            <div class="row">
+                <div class="card-deck">
+                    {% if read_also %}
+                    {% for book in read_also %}
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="view overlay">
+                                <img src="{{ book.img_url_l }}" alt="Book cover">
+                                <a href="{{ book.get_absolute_url }}">
+                                    <div class="mask"></div>
+                                </a>
+                            </div>
+                        </div>
+                        <div class="card-body"></div>
+                    </div>
+                    {% endfor %}
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+{% endblock %}
+
+{% block javascript %}
+<script type="text/javascript">
+    $('.btn-add-to-cart').click(function() {
+        add_to_cart($(this).prev().find('span#bookInstId').text());
+    });
+
+    $('#modalAddToCart').on('shown.bs.modal', function() {
+        modal_timeout(1000); // Close modal after 1000 ms
+    });
+
+    function add_to_cart(arg) {
+        $.ajax({
+            url: "{% url 'cart:cart-add' %}",
+            data: {
+                pk: arg
+            },
+
+            success: function(response) {
+                $('#copystatus').removeClass().addClass(response['status']);
+                $('#modalAddToCart').find('.modal-msg').text(response['msg']);
+                $('#modalAddToCart').modal('show');
+            }
+        });
+    }
+
+    function modal_timeout(dur) {
+        setTimeout(function() {
+            $('#modalAddToCart').modal('hide');
+        }, dur);
+    }
+</script>
+{% endblock %}

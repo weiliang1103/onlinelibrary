@@ -1,0 +1,139 @@
+{% extends 'base_generic.html' %}
+
+{% block title %}<title>{{ title }}</title>{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <h1 class="font-weight-bold">{{ title }}</h1>
+        <div class="col-lg-12">
+            <ul class="list-group list-group-flush">
+                {% for book_inst in cart %}
+                <li class="list-group-item d-flex justify-content-between">
+                    <span class="text-muted">{{ book_inst }}</span>
+                    <button type="button" class="close text-muted mx-2 btn-remove-from-cart" data-target="#modalConfirmDelete" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                </li>
+                {% empty %}
+                <h5 class="text-muted">There is no books in your cart.</h5>
+                {% endfor %}
+        </ul>
+        </div>
+        {% if cart %}
+        <div>
+            <button type="button" id="checkout" class="btn btn-outline-primary btn-md mr-3"><span><i class="fa fa-cart-plus mr-2"></i>Checkout</span></button>
+            <button type="button" id="emptyCart" class="btn btn-outline-danger btn-md mr-3"><span><i class="fa fa-cart-plus mr-2"></i>Empty cart</span></button>
+        </div>
+        <!-- Modal Confirm Delete -->
+        <div class="modal fade" id="modalConfirmDelete" tabindex="-1" role="dialog" aria-labelledby="confirmDelete" aria-hidden="true">
+            <div class="modal-dialog modal-md modal-notify modal-danger" role="document">
+                <div class="modal-content text-center">
+                    <div class="modal-header">
+                        <span class="white-text">Warning</span>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true" class="white-text">&times;</span></button>
+                    </div>
+                    <div class="modal-body">
+                        <i class="fa fa-times fa-4x animated rotateIn"></i>
+                        <p>Are you sure want to remove this book from your cart?</p>
+                        <p id="bookInstId"></p>
+                    </div>
+                    <div class="modal-footer justify-content-center">
+                        <button type="button" id="btnConfirmDelete" class="btn btn-outline-danger">Yes</button>
+                        <button type="button" class="btn btn-danger" data-dismiss="modal">No</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block javascript %}
+<script type="text/javascript">
+    $('.btn-remove-from-cart').click(function() {
+        $('#modalConfirmDelete').find('#bookInstId').text($(this).prev().text())
+        $('#modalConfirmDelete').modal('show');
+    });
+
+    $('#btnConfirmDelete').click(function() {
+        remove_from_cart($(this).parent().prev().find('#bookInstId').text());
+        $('#modalConfirmDelete').modal('hide')
+    });
+
+    $('#checkout').click(function() {
+        checkout();
+    });
+
+    $('#emptyCart').click(function() {
+        empty_cart();
+    });
+
+    function confirm_delete(book, arg) {
+        
+    }
+
+    function remove_from_cart(book, arg) {
+        $.ajax({
+            url: "{% url 'cart:cart-remove' %}",
+            data: {
+                pk: arg
+            },
+
+            success: function(response) {
+                $('')
+                })
+            }
+        });
+    }
+
+    function empty_cart() {
+        $.ajax({
+            url: "{% url 'cart:cart-empty' %}",
+
+            success: function(response) {
+                alert("Your cart is now empty.");
+                // Reload cart div here
+            }
+        });
+    }
+
+    myDomain = 'http://lrgs.ftsm.ukm.my/users/a155603/'
+
+    function checkout() {
+        $.ajax({
+            url: "{% url 'cart:cart-checkout' %}",
+
+            success: function(response) {
+                $.map(response, function(v) {
+                    push_xy(myDomain, v[1], v[2]);
+                });
+            }
+        });
+    }
+
+
+    // function send_to_turtlebot(domain, x_coor, y_coor) {
+    //     $.ajax(function() {
+    //         url: "{% url 'turtlebot:push' %}",
+
+    //         success: function() {
+                
+    //         }
+    //     });
+    // }
+
+    function push_xy(domain,x,y) {
+        var status;
+        var id;
+        var script = "/turtlebot-server/coffee_queue.php?push&quat_z=0.892&quat_w=-1.5&point_x=" + x + "&point_y=" + y;
+        console.log(script);
+        $.getJSON( domain + script, function( data ) {
+            status = data["status"];
+            //the server passes back a unique id for this coffee request.  That'll allow us to keep track of future coffee requests
+            id = data["id"];
+            console.log(id);
+            localStorage['id'] = id;
+        });
+    }
+</script>
+{% endblock %}

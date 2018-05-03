@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+
+    {% block title %}<title></title>{% endblock %}
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <!-- Bootstrap core CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.0.0/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Material Design Bootstrap -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/mdbootstrap/4.5.0/css/mdb.min.css" rel="stylesheet">
+
+    {% load static %}
+    <link rel="stylesheet" type="text/css" href="{% static 'css/styles.css' %}">
+</head>
+<body>
+    <!-- Navigation -->
+    <header>
+        {% block navbar %}
+        <!-- Navbar -->
+        <nav class="navbar navbar-expand-lg navbar-dark special-color fixed-top scrolling-navbar">
+            <div class="container">
+                <!-- Navbar brand -->
+                <a class="navbar-brand" href="{% url 'index' %}">Online Library</a>
+                <!-- /Navbar brand -->
+                <!-- Toggle button -->
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#onlineLibraryNavbar" aria-controls="onlineLibraryNavbar" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <!-- /Toggle button -->
+                <!-- Navbar content -->
+                <div class="collapse navbar-collapse" id="onlineLibraryNavbar">
+                    <!-- Links -->
+                    <ul class="navbar-nav mr-auto">
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'index' %}">Home</a>
+                        </li>
+                        <!-- Dropdown -->
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" id="onlineLibraryNavbarDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Browse</a>
+                            <div class="dropdown-menu dropdown-primary" aria-labelledby="onlineLibraryNavbar">
+                                <a class="dropdown-item" href="{% url 'books' %}">Books</a>
+                                <a class="dropdown-item" href="{% url 'authors' %}">Authors</a>
+                            </div>
+                        </li>
+                        <!-- /Dropdown -->
+                    </ul>
+                    <!-- /Links -->
+                    <!-- Icons -->
+                    <ul class="navbar-nav nav-flex-icons">
+                        <!-- Cart -->
+                        <li class="nav-item">
+                            <a class="nav-link waves-effect waves-light" href="{% url 'cart:cart-view' %}">
+                                <i class="fa fa-shopping-cart"></i>
+                            </a>
+                        </li>
+                        <!-- /Cart -->
+                        <!-- User -->
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle waves-effect waves-light"  data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-user"></i></a>
+                            <div class="dropdown-menu dropdown-primary" aria-labelledby="onlineLibraryNavbar">
+                                <a href="#"><span>View my profile</span></a>
+                            </div>
+                        </li>
+                        <!-- /User -->
+                    </ul>
+                    <!-- /Icons -->
+                </div>
+                <!-- /Navbar content -->
+            </div>
+        </nav>
+        <!-- /Navbar -->
+        {% endblock %}
+        {% block sidenav %}{% endblock %}
+    </header>
+    <!-- end Navigation -->
+    <!-- Main layout -->
+    <main class="mt-5 pt-5">
+        {% block content %}{% endblock %}
+        {% block pagination %}
+        {% if is_paginated %}
+        <!-- Pagination -->
+        <div class="container">
+            <nav aria-label="pagination">
+                <ul class="pagination {% if not page_obj.has_previous %}disabled{% endif %}">
+                    <li class="page-item">
+                        <a class="page-link" href="{% if page_obj.has_previous %}{{ request.path }}?page={{ page_obj.previous_page_number }}{% endif %}" aria-label="previous">
+                            <span aria-hidden="true">&laquo;</span>
+                            <span class="sr-only">Previous</span>
+                        </a>
+                    </li>
+                        <span class="page-current">
+                            Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+                        </span>
+                        {% if page_obj.has_next %}
+                        <a href="{{ request.path }}?page={{ page_obj.next_page_number }}">next</a>
+                        {% endif %}
+                    </span>
+                </ul>
+            </nav>
+        </div>
+        {% endif %}
+        {% endblock %}
+    </main>
+    <!-- /Main layout -->
+    <!-- Footer -->
+    <footer class="page-footer text-center text-md-left font-small special-color pt-4 mt-4">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4 pb-3">
+                    <h6 class="text-uppercase text-justify-center font-weight-bold">About</h6>
+                    <p>This is a prototype.</p>
+                </div>
+                <div class="col-md-4 pb-3">
+                    <h6 class="text-uppercase font-weight-bold">Browse</h6>
+                    <ul class="list-unstyled">
+                        <li><a href="{% url 'books' %}">Books</a></li>
+                        <li><a href="{% url 'authors' %}">Authors</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-4 pb-3">
+                    <h6 class="text-uppercase font-weight-bold">Contact</h6>
+                    <p><i class="fa fa-envelope mr-3"></i>weiliang1103@gmail.com</p>
+                </div>
+            </div>
+        </div>
+        <!-- Copyright -->
+        <div class="footer-copyright py-3 text-center">
+            &copy; 2018 Tang Wei Liang. All rights reserved.
+        </div>
+    </footer>
+    <!-- /Footer -->
+    <!-- JQuery -->
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <!-- Bootstrap tooltips -->
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.13.0/umd/popper.min.js"></script>
+    <!-- Bootstrap core JavaScript -->
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.0.0/js/bootstrap.min.js"></script>
+    <!-- MDB core JavaScript -->
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mdbootstrap/4.5.0/js/mdb.min.js"></script>
+    <!-- Custom JavaScript -->
+    {% load static %}
+    <script type="text/javascript" src="{% static 'js/javascript.js' %}"></script>
+    {% block javascript %}{% endblock %}
+</body>
+</html>

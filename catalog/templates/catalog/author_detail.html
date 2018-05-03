@@ -1,0 +1,16 @@
+{% extends 'base_generic.html' %}
+
+{% block content %}
+<div class="container">
+    <h1>{{ author }}</h1>
+    <!-- <h3>About</h3> -->
+    <h3>Books</h3>
+    <div class="list-group list-group-flush">
+        {% for book in author.book_set.all %}
+        <li class="list-group-item d-flex justify-content-between">
+            <a href="{% url 'book-detail' book.pk %}">{{ book }}<span class="badge badge-pill badge-primary mx-1">{{ book.bookinstance_set.all.count }}</span></a>
+        </li>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
